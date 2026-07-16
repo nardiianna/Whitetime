@@ -1,4 +1,4 @@
-# Content Planner — pianificazione post + reminder Telegram
+# WhiteTime — pianificazione post + reminder Telegram
 
 Pianifica i contenuti per Pallavolo, Centro Sportivo e Magnetica Design da telefono o computer.
 Niente pubblicazione automatica su Instagram (serve il Business Manager, non disponibile per

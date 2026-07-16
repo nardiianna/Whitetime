@@ -9,11 +9,11 @@ interface Props {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  idea: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
-  da_fare: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-  programmato: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  promemoria_inviato: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
-  pubblicato: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+  idea: 'bg-white text-pink-400 border border-pink-200',
+  da_fare: 'bg-pink-50 text-pink-500',
+  programmato: 'bg-pink-100 text-pink-600',
+  promemoria_inviato: 'bg-pink-200 text-pink-700',
+  pubblicato: 'bg-pink-400 text-white',
 }
 
 export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {
@@ -30,11 +30,11 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {
       {posts.map((post) => (
         <li
           key={post.id}
-          className="flex items-center gap-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3"
+          className="flex items-center gap-3 rounded-lg border border-pink-100 bg-white p-3"
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              <span className="text-sm font-medium text-neutral-900">
                 {new Date(post.scheduled_at).toLocaleString('it-IT', {
                   weekday: 'short',
                   day: '2-digit',
@@ -47,7 +47,7 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {
                 {STATUS_LABELS[post.status]}
               </span>
             </div>
-            <p className="truncate text-sm text-neutral-600 dark:text-neutral-400">
+            <p className="truncate text-sm text-neutral-600">
               {post.caption || '(nessuna caption)'}
             </p>
           </div>
@@ -55,20 +55,20 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {
             {post.status !== 'pubblicato' && (
               <button
                 onClick={() => onMarkPublished(post)}
-                className="rounded-md border border-neutral-300 dark:border-neutral-700 px-2 py-1 text-xs"
+                className="rounded-md border border-pink-200 px-2 py-1 text-xs text-pink-600"
               >
                 Segna pubblicato
               </button>
             )}
             <button
               onClick={() => onEdit(post)}
-              className="rounded-md border border-neutral-300 dark:border-neutral-700 px-2 py-1 text-xs"
+              className="rounded-md border border-pink-200 px-2 py-1 text-xs text-pink-600"
             >
               Modifica
             </button>
             <button
               onClick={() => onDelete(post)}
-              className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-600"
+              className="rounded-md border border-pink-300 px-2 py-1 text-xs text-pink-700"
             >
               Elimina
             </button>

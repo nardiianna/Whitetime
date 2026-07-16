@@ -91,13 +91,13 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-3xl px-4 py-6">
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Content Planner</h1>
+          <h1 className="text-lg font-semibold text-pink-500">WhiteTime</h1>
           <button
             onClick={() => supabase.auth.signOut()}
-            className="text-sm text-neutral-500 hover:underline"
+            className="text-sm text-pink-400 hover:underline"
           >
             Esci
           </button>
@@ -108,8 +108,8 @@ function App() {
             onClick={() => setSelectedPageId(ALL)}
             className={`rounded-full px-3 py-1.5 text-sm ${
               selectedPageId === ALL
-                ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
-                : 'border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300'
+                ? 'bg-pink-400 text-white'
+                : 'border border-pink-200 text-pink-600'
             }`}
           >
             Tutte
@@ -120,8 +120,8 @@ function App() {
               onClick={() => setSelectedPageId(page.id)}
               className={`rounded-full px-3 py-1.5 text-sm ${
                 selectedPageId === page.id
-                  ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
-                  : 'border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300'
+                  ? 'bg-pink-400 text-white'
+                  : 'border border-pink-200 text-pink-600'
               }`}
             >
               {page.name}
@@ -132,7 +132,7 @@ function App() {
         <div className="mb-4 flex justify-end">
           <button
             onClick={openNewPost}
-            className="rounded-md bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-sm font-medium text-white dark:text-neutral-900"
+            className="rounded-md bg-pink-400 px-3 py-2 text-sm font-medium text-white hover:bg-pink-500"
           >
             + Nuovo post
           </button>

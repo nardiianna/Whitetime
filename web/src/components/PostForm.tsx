@@ -71,15 +71,15 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4"
+      className="space-y-4 rounded-xl border border-pink-200 bg-white p-4"
     >
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600 dark:text-neutral-400">Pagina</label>
+          <label className="text-sm text-neutral-600">Pagina</label>
           <select
             value={pageId}
             onChange={(e) => setPageId(e.target.value)}
-            className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-2 text-sm"
+            className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
           >
             {pages.map((p) => (
               <option key={p.id} value={p.id}>
@@ -89,29 +89,29 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600 dark:text-neutral-400">Data e ora pubblicazione</label>
+          <label className="text-sm text-neutral-600">Data e ora pubblicazione</label>
           <input
             type="datetime-local"
             required
             value={scheduledAt}
             onChange={(e) => setScheduledAt(e.target.value)}
-            className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-2 text-sm"
+            className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
           />
         </div>
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600 dark:text-neutral-400">Caption</label>
+        <label className="text-sm text-neutral-600">Caption</label>
         <textarea
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           rows={4}
-          className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-2 text-sm"
+          className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600 dark:text-neutral-400">Immagine</label>
+        <label className="text-sm text-neutral-600">Immagine</label>
         {currentMediaUrl && !file && (
           <img src={currentMediaUrl} alt="" className="h-24 w-24 rounded object-cover mb-2" />
         )}
@@ -125,11 +125,11 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600 dark:text-neutral-400">Stato</label>
+          <label className="text-sm text-neutral-600">Stato</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as PostStatus)}
-            className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-2 text-sm"
+            className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
           >
             {Object.entries(STATUS_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -139,29 +139,29 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600 dark:text-neutral-400">Note (opzionale)</label>
+          <label className="text-sm text-neutral-600">Note (opzionale)</label>
           <input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-2 text-sm"
+            className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
           />
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-pink-700">{error}</p>}
 
       <div className="flex justify-end gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
+          className="rounded-md border border-pink-200 px-3 py-2 text-sm text-pink-600"
         >
           Annulla
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-sm font-medium text-white dark:text-neutral-900 disabled:opacity-50"
+          className="rounded-md bg-pink-400 px-3 py-2 text-sm font-medium text-white hover:bg-pink-500 disabled:opacity-50"
         >
           {saving ? 'Salvataggio…' : 'Salva'}
         </button>

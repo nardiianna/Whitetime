@@ -40,24 +40,24 @@ export function IdeasBank({ pageId, ideas, onChanged }: Props) {
   const used = ideas.filter((i) => i.used)
 
   return (
-    <div className="space-y-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
-      <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Banca idee</h3>
+    <div className="space-y-3 rounded-xl border border-pink-200 bg-white p-4">
+      <h3 className="text-sm font-semibold text-pink-500">Banca idee</h3>
       <form onSubmit={handleAdd} className="flex gap-2">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Nuova idea…"
-          className="flex-1 rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-1.5 text-sm"
+          className="flex-1 rounded-md border border-pink-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-pink-400"
         />
         <input
           value={pillar}
           onChange={(e) => setPillar(e.target.value)}
           placeholder="Categoria (opz.)"
-          className="w-40 rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-1.5 text-sm"
+          className="w-40 rounded-md border border-pink-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-pink-400"
         />
         <button
           type="submit"
-          className="rounded-md bg-neutral-900 dark:bg-neutral-100 px-3 py-1.5 text-sm font-medium text-white dark:text-neutral-900"
+          className="rounded-md bg-pink-400 px-3 py-1.5 text-sm font-medium text-white hover:bg-pink-500"
         >
           Aggiungi
         </button>
@@ -73,16 +73,16 @@ export function IdeasBank({ pageId, ideas, onChanged }: Props) {
             <li key={idea.id} className="flex items-center gap-2 text-sm">
               <button
                 onClick={() => toggleUsed(idea)}
-                className="h-4 w-4 shrink-0 rounded border border-neutral-400"
+                className="h-4 w-4 shrink-0 rounded border border-pink-300"
                 title="Segna come usata"
               />
-              <span className="flex-1 text-neutral-800 dark:text-neutral-200">{idea.idea_text}</span>
+              <span className="flex-1 text-neutral-800">{idea.idea_text}</span>
               {idea.pillar && (
-                <span className="rounded-full bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-xs text-neutral-500">
+                <span className="rounded-full bg-pink-50 px-2 py-0.5 text-xs text-pink-500">
                   {idea.pillar}
                 </span>
               )}
-              <button onClick={() => remove(idea)} className="text-xs text-red-500">
+              <button onClick={() => remove(idea)} className="text-xs text-pink-500">
                 Elimina
               </button>
             </li>
@@ -96,9 +96,9 @@ export function IdeasBank({ pageId, ideas, onChanged }: Props) {
           <ul className="mt-1 space-y-1">
             {used.map((idea) => (
               <li key={idea.id} className="flex items-center gap-2 line-through">
-                <button onClick={() => toggleUsed(idea)} className="h-4 w-4 shrink-0 rounded bg-neutral-400" />
+                <button onClick={() => toggleUsed(idea)} className="h-4 w-4 shrink-0 rounded bg-pink-300" />
                 <span className="flex-1">{idea.idea_text}</span>
-                <button onClick={() => remove(idea)} className="text-xs text-red-500 no-underline">
+                <button onClick={() => remove(idea)} className="text-xs text-pink-500 no-underline">
                   Elimina
                 </button>
               </li>
