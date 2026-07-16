@@ -71,7 +71,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-xl border border-pink-200 bg-white p-4"
+      className="space-y-4 rounded-xl border border-brand-200 bg-white p-4"
     >
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
@@ -79,7 +79,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
           <select
             value={pageId}
             onChange={(e) => setPageId(e.target.value)}
-            className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
+            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
           >
             {pages.map((p) => (
               <option key={p.id} value={p.id}>
@@ -95,7 +95,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
             required
             value={scheduledAt}
             onChange={(e) => setScheduledAt(e.target.value)}
-            className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
+            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
           />
         </div>
       </div>
@@ -106,7 +106,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           rows={4}
-          className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
+          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
         />
       </div>
 
@@ -129,7 +129,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as PostStatus)}
-            className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
+            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
           >
             {Object.entries(STATUS_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -143,25 +143,25 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
           <input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full rounded-md border border-pink-200 bg-white px-3 py-2 text-sm focus:border-pink-400 outline-none"
+            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
           />
         </div>
       </div>
 
-      {error && <p className="text-sm text-pink-700">{error}</p>}
+      {error && <p className="text-sm text-brand-700">{error}</p>}
 
       <div className="flex justify-end gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-pink-200 px-3 py-2 text-sm text-pink-600"
+          className="rounded-md border border-brand-200 px-3 py-2 text-sm text-brand-700"
         >
           Annulla
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-pink-400 px-3 py-2 text-sm font-medium text-white hover:bg-pink-500 disabled:opacity-50"
+          className="rounded-md bg-brand-700 px-3 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-50"
         >
           {saving ? 'Salvataggio…' : 'Salva'}
         </button>

@@ -94,10 +94,10 @@ function App() {
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-3xl px-4 py-6">
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-pink-500">WhiteTime</h1>
+          <h1 className="text-lg font-semibold text-brand-600">WhiteTime</h1>
           <button
             onClick={() => supabase.auth.signOut()}
-            className="text-sm text-pink-400 hover:underline"
+            className="text-sm text-brand-600 hover:underline"
           >
             Esci
           </button>
@@ -108,8 +108,8 @@ function App() {
             onClick={() => setSelectedPageId(ALL)}
             className={`rounded-full px-3 py-1.5 text-sm ${
               selectedPageId === ALL
-                ? 'bg-pink-400 text-white'
-                : 'border border-pink-200 text-pink-600'
+                ? 'bg-brand-700 text-white'
+                : 'border border-brand-200 text-brand-700'
             }`}
           >
             Tutte
@@ -120,8 +120,8 @@ function App() {
               onClick={() => setSelectedPageId(page.id)}
               className={`rounded-full px-3 py-1.5 text-sm ${
                 selectedPageId === page.id
-                  ? 'bg-pink-400 text-white'
-                  : 'border border-pink-200 text-pink-600'
+                  ? 'bg-brand-700 text-white'
+                  : 'border border-brand-200 text-brand-700'
               }`}
             >
               {page.name}
@@ -132,7 +132,7 @@ function App() {
         <div className="mb-4 flex justify-end">
           <button
             onClick={openNewPost}
-            className="rounded-md bg-pink-400 px-3 py-2 text-sm font-medium text-white hover:bg-pink-500"
+            className="rounded-md bg-brand-700 px-3 py-2 text-sm font-medium text-white hover:bg-brand-800"
           >
             + Nuovo post
           </button>

@@ -9,11 +9,11 @@ interface Props {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  idea: 'bg-white text-pink-400 border border-pink-200',
-  da_fare: 'bg-pink-50 text-pink-500',
-  programmato: 'bg-pink-100 text-pink-600',
-  promemoria_inviato: 'bg-pink-200 text-pink-700',
-  pubblicato: 'bg-pink-400 text-white',
+  idea: 'bg-white text-brand-600 border border-brand-200',
+  da_fare: 'bg-brand-50 text-brand-600',
+  programmato: 'bg-brand-100 text-brand-700',
+  promemoria_inviato: 'bg-brand-200 text-brand-800',
+  pubblicato: 'bg-brand-700 text-white',
 }
 
 export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {
@@ -30,7 +30,7 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {
       {posts.map((post) => (
         <li
           key={post.id}
-          className="flex items-center gap-3 rounded-lg border border-pink-100 bg-white p-3"
+          className="flex items-center gap-3 rounded-lg border border-brand-100 bg-white p-3"
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
@@ -55,20 +55,20 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {
             {post.status !== 'pubblicato' && (
               <button
                 onClick={() => onMarkPublished(post)}
-                className="rounded-md border border-pink-200 px-2 py-1 text-xs text-pink-600"
+                className="rounded-md border border-brand-200 px-2 py-1 text-xs text-brand-700"
               >
                 Segna pubblicato
               </button>
             )}
             <button
               onClick={() => onEdit(post)}
-              className="rounded-md border border-pink-200 px-2 py-1 text-xs text-pink-600"
+              className="rounded-md border border-brand-200 px-2 py-1 text-xs text-brand-700"
             >
               Modifica
             </button>
             <button
               onClick={() => onDelete(post)}
-              className="rounded-md border border-pink-300 px-2 py-1 text-xs text-pink-700"
+              className="rounded-md border border-brand-300 px-2 py-1 text-xs text-brand-800"
             >
               Elimina
             </button>
