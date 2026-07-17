@@ -6,8 +6,9 @@ import { PostForm } from './components/PostForm'
 import { PostList } from './components/PostList'
 import { IdeasBank } from './components/IdeasBank'
 import { PageForm } from './components/PageForm'
+import { CategoryForm } from './components/CategoryForm'
 import logo from './assets/logo.png'
-import type { Page, Post, ContentIdea } from './types'
+import type { Page, Post, ContentIdea, Category } from './types'
 
 const ALL = 'all'
 
@@ -16,11 +17,14 @@ function App() {
   const [authLoading, setAuthLoading] = useState(true)
   const [pages, setPages] = useState<Page[]>([])
   const [selectedPageId, setSelectedPageId] = useState<string>(ALL)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>(ALL)
   const [posts, setPosts] = useState<Post[]>([])
   const [ideas, setIdeas] = useState<ContentIdea[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingPost, setEditingPost] = useState<Post | undefined>(undefined)
   const [showPageForm, setShowPageForm] = useState(false)
+  const [showCategoryForm, setShowCategoryForm] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -39,11 +43,12 @@ function App() {
   }, [])
 
   const loadPosts = useCallback(async () => {
-    let query = supabase.from('posts').select('*').order('scheduled_at')
+    let query = supabase.from('posts').select('*, category:categories(name)').order('scheduled_at')
     if (selectedPageId !== ALL) query = query.eq('page_id', selectedPageId)
+    if (selectedCategoryId !== ALL) query = query.eq('category_id', selectedCategoryId)
     const { data } = await query
     setPosts(data ?? [])
-  }, [selectedPageId])
+  }, [selectedPageId, selectedCategoryId])
 
   const loadIdeas = useCallback(async () => {
     if (selectedPageId === ALL) {
@@ -58,16 +63,34 @@ function App() {
     setIdeas(data ?? [])
   }, [selectedPageId])
 
+  const loadCategories = useCallback(async () => {
+    if (selectedPageId === ALL) {
+      setCategories([])
+      return
+    }
+    const { data } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('page_id', selectedPageId)
+      .order('name')
+    setCategories(data ?? [])
+  }, [selectedPageId])
+
   useEffect(() => {
     if (session) loadPages()
   }, [session, loadPages])
 
   useEffect(() => {
+    setSelectedCategoryId(ALL)
+  }, [selectedPageId])
+
+  useEffect(() => {
     if (session) {
       loadPosts()
       loadIdeas()
+      loadCategories()
     }
-  }, [session, loadPosts, loadIdeas])
+  }, [session, loadPosts, loadIdeas, loadCategories])
 
   if (authLoading) return null
   if (!session) return <Login />
@@ -147,6 +170,51 @@ function App() {
               }}
               onCancel={() => setShowPageForm(false)}
             />
+          </div>
+        )}
+
+        {selectedPageId !== ALL && (
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setSelectedCategoryId(ALL)}
+              className={`rounded-full px-3 py-1 text-xs ${
+                selectedCategoryId === ALL
+                  ? 'bg-brand-200 text-neutral-800'
+                  : 'border border-brand-100 text-brand-600'
+              }`}
+            >
+              Tutte le categorie
+            </button>
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategoryId(category.id)}
+                className={`rounded-full px-3 py-1 text-xs ${
+                  selectedCategoryId === category.id
+                    ? 'bg-brand-200 text-neutral-800'
+                    : 'border border-brand-100 text-brand-600'
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+            {showCategoryForm ? (
+              <CategoryForm
+                pageId={selectedPageId}
+                onSaved={() => {
+                  setShowCategoryForm(false)
+                  loadCategories()
+                }}
+                onCancel={() => setShowCategoryForm(false)}
+              />
+            ) : (
+              <button
+                onClick={() => setShowCategoryForm(true)}
+                className="rounded-full border border-dashed border-brand-200 px-3 py-1 text-xs text-brand-600"
+              >
+                + Categoria
+              </button>
+            )}
           </div>
         )}
 

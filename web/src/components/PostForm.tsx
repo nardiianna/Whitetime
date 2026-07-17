@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { STATUS_LABELS } from '../types'
-import type { Page, Post, PostStatus } from '../types'
+import type { Page, Post, PostStatus, Category } from '../types'
 
 interface Props {
   pages: Page[]
@@ -21,6 +21,8 @@ function toLocalInputValue(iso: string | undefined) {
 
 export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Props) {
   const [pageId, setPageId] = useState(post?.page_id ?? defaultPageId)
+  const [categoryId, setCategoryId] = useState(post?.category_id ?? '')
+  const [categories, setCategories] = useState<Category[]>([])
   const [caption, setCaption] = useState(post?.caption ?? '')
   const [scheduledAt, setScheduledAt] = useState(toLocalInputValue(post?.scheduled_at))
   const [status, setStatus] = useState<PostStatus>(post?.status ?? 'programmato')
@@ -32,6 +34,20 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
   const currentMediaUrl = post?.media_path
     ? supabase.storage.from('media').getPublicUrl(post.media_path).data.publicUrl
     : null
+
+  useEffect(() => {
+    supabase
+      .from('categories')
+      .select('*')
+      .eq('page_id', pageId)
+      .order('name')
+      .then(({ data }) => setCategories(data ?? []))
+  }, [pageId])
+
+  function handlePageChange(newPageId: string) {
+    setPageId(newPageId)
+    setCategoryId('')
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -48,6 +64,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
 
       const payload = {
         page_id: pageId,
+        category_id: categoryId || null,
         caption,
         scheduled_at: new Date(scheduledAt).toISOString(),
         status,
@@ -78,7 +95,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
           <label className="text-sm text-neutral-600">Pagina</label>
           <select
             value={pageId}
-            onChange={(e) => setPageId(e.target.value)}
+            onChange={(e) => handlePageChange(e.target.value)}
             className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
           >
             {pages.map((p) => (
@@ -99,6 +116,24 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
           />
         </div>
       </div>
+
+      {categories.length > 0 && (
+        <div className="space-y-1">
+          <label className="text-sm text-neutral-600">Categoria (opzionale)</label>
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+          >
+            <option value="">— nessuna —</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="space-y-1">
         <label className="text-sm text-neutral-600">Caption</label>

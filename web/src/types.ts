@@ -15,9 +15,16 @@ export interface Page {
   notes: string | null
 }
 
+export interface Category {
+  id: string
+  page_id: string
+  name: string
+}
+
 export interface Post {
   id: string
   page_id: string
+  category_id: string | null
   caption: string
   media_path: string | null
   scheduled_at: string
@@ -25,6 +32,7 @@ export interface Post {
   reminder_sent: boolean
   notes: string | null
   created_at: string
+  category?: { name: string } | null
 }
 
 export interface ContentIdea {

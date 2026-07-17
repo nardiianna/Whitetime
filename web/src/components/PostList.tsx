@@ -46,6 +46,11 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {
               <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[post.status]}`}>
                 {STATUS_LABELS[post.status]}
               </span>
+              {post.category?.name && (
+                <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
+                  {post.category.name}
+                </span>
+              )}
             </div>
             <p className="truncate text-sm text-neutral-600">
               {post.caption || '(nessuna caption)'}

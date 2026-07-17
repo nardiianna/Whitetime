@@ -40,7 +40,7 @@ Deno.serve(async () => {
 
   const { data: duePosts, error } = await supabase
     .from("posts")
-    .select("id, caption, media_path, scheduled_at, page:pages(name)")
+    .select("id, caption, media_path, scheduled_at, page:pages(name), category:categories(name)")
     .eq("reminder_sent", false)
     .lte("scheduled_at", windowEnd);
 
@@ -52,7 +52,9 @@ Deno.serve(async () => {
   for (const post of duePosts ?? []) {
     const time = new Date(post.scheduled_at).toLocaleString("it-IT", { timeZone: "Europe/Rome" });
     const pageName = (post.page as { name?: string } | null)?.name ?? "Pagina";
-    const caption = `📅 <b>${pageName}</b> — ${time}\n\n${post.caption || "(nessuna caption)"}`;
+    const categoryName = (post.category as { name?: string } | null)?.name;
+    const header = categoryName ? `${pageName} · ${categoryName}` : pageName;
+    const caption = `📅 <b>${header}</b> — ${time}\n\n${post.caption || "(nessuna caption)"}`;
 
     if (post.media_path) {
       const { data: pub } = supabase.storage.from("media").getPublicUrl(post.media_path);
