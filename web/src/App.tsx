@@ -5,6 +5,7 @@ import { Login } from './components/Login'
 import { PostForm } from './components/PostForm'
 import { PostList } from './components/PostList'
 import { IdeasBank } from './components/IdeasBank'
+import { PageForm } from './components/PageForm'
 import logo from './assets/logo.png'
 import type { Page, Post, ContentIdea } from './types'
 
@@ -19,6 +20,7 @@ function App() {
   const [ideas, setIdeas] = useState<ContentIdea[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingPost, setEditingPost] = useState<Post | undefined>(undefined)
+  const [showPageForm, setShowPageForm] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -128,7 +130,25 @@ function App() {
               {page.name}
             </button>
           ))}
+          <button
+            onClick={() => setShowPageForm(true)}
+            className="rounded-full border border-dashed border-brand-300 px-3 py-1.5 text-sm text-brand-700"
+          >
+            + Cliente
+          </button>
         </div>
+
+        {showPageForm && (
+          <div className="mb-4">
+            <PageForm
+              onSaved={() => {
+                setShowPageForm(false)
+                loadPages()
+              }}
+              onCancel={() => setShowPageForm(false)}
+            />
+          </div>
+        )}
 
         <div className="mb-4 flex justify-end">
           <button
