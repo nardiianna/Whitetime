@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
+import logo from '../assets/logo.png'
 
 export function Login() {
   const [email, setEmail] = useState('')
@@ -23,7 +24,7 @@ export function Login() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-xl border border-brand-200 bg-white p-6 shadow-sm"
       >
-        <h1 className="text-lg font-semibold text-brand-600">WhiteTime</h1>
+        <img src={logo} alt="WhiteTime" className="h-12 w-auto mx-auto" />
         <div className="space-y-1">
           <label className="text-sm text-neutral-600">Email</label>
           <input
@@ -48,7 +49,7 @@ export function Login() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-brand-700 px-3 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-50"
+          className="w-full rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400 disabled:opacity-50"
         >
           {loading ? 'Accesso in corso…' : 'Accedi'}
         </button>

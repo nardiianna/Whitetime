@@ -13,7 +13,7 @@ const STATUS_STYLES: Record<string, string> = {
   da_fare: 'bg-brand-50 text-brand-600',
   programmato: 'bg-brand-100 text-brand-700',
   promemoria_inviato: 'bg-brand-200 text-brand-800',
-  pubblicato: 'bg-brand-700 text-white',
+  pubblicato: 'bg-brand-300 text-neutral-800 font-medium',
 }
 
 export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {

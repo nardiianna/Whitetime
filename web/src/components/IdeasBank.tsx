@@ -57,7 +57,7 @@ export function IdeasBank({ pageId, ideas, onChanged }: Props) {
         />
         <button
           type="submit"
-          className="rounded-md bg-brand-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-800"
+          className="rounded-md bg-brand-300 px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-brand-400"
         >
           Aggiungi
         </button>

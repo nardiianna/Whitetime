@@ -5,6 +5,7 @@ import { Login } from './components/Login'
 import { PostForm } from './components/PostForm'
 import { PostList } from './components/PostList'
 import { IdeasBank } from './components/IdeasBank'
+import logo from './assets/logo.png'
 import type { Page, Post, ContentIdea } from './types'
 
 const ALL = 'all'
@@ -94,7 +95,7 @@ function App() {
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-3xl px-4 py-6">
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-brand-600">WhiteTime</h1>
+          <img src={logo} alt="WhiteTime" className="h-8 w-auto" />
           <button
             onClick={() => supabase.auth.signOut()}
             className="text-sm text-brand-600 hover:underline"
@@ -108,7 +109,7 @@ function App() {
             onClick={() => setSelectedPageId(ALL)}
             className={`rounded-full px-3 py-1.5 text-sm ${
               selectedPageId === ALL
-                ? 'bg-brand-700 text-white'
+                ? 'bg-brand-300 text-neutral-800'
                 : 'border border-brand-200 text-brand-700'
             }`}
           >
@@ -120,7 +121,7 @@ function App() {
               onClick={() => setSelectedPageId(page.id)}
               className={`rounded-full px-3 py-1.5 text-sm ${
                 selectedPageId === page.id
-                  ? 'bg-brand-700 text-white'
+                  ? 'bg-brand-300 text-neutral-800'
                   : 'border border-brand-200 text-brand-700'
               }`}
             >
@@ -132,7 +133,7 @@ function App() {
         <div className="mb-4 flex justify-end">
           <button
             onClick={openNewPost}
-            className="rounded-md bg-brand-700 px-3 py-2 text-sm font-medium text-white hover:bg-brand-800"
+            className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400"
           >
             + Nuovo post
           </button>

@@ -161,7 +161,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-brand-700 px-3 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-50"
+          className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400 disabled:opacity-50"
         >
           {saving ? 'Salvataggio…' : 'Salva'}
         </button>
