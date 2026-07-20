@@ -27,13 +27,28 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
   const [scheduledAt, setScheduledAt] = useState(toLocalInputValue(post?.scheduled_at))
   const [status, setStatus] = useState<PostStatus>(post?.status ?? 'programmato')
   const [notes, setNotes] = useState(post?.notes ?? '')
-  const [file, setFile] = useState<File | null>(null)
+  const [existingPaths, setExistingPaths] = useState(post?.media_paths ?? [])
+  const [newFiles, setNewFiles] = useState<File[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const currentMediaUrl = post?.media_path
-    ? supabase.storage.from('media').getPublicUrl(post.media_path).data.publicUrl
-    : null
+  const existingUrls = existingPaths.map((path) => ({
+    path,
+    url: supabase.storage.from('media').getPublicUrl(path).data.publicUrl,
+  }))
+
+  function addFiles(fileList: FileList | null) {
+    if (!fileList) return
+    setNewFiles((prev) => [...prev, ...Array.from(fileList)])
+  }
+
+  function removeExisting(path: string) {
+    setExistingPaths((prev) => prev.filter((p) => p !== path))
+  }
+
+  function removeNewFile(index: number) {
+    setNewFiles((prev) => prev.filter((_, i) => i !== index))
+  }
 
   useEffect(() => {
     supabase
@@ -54,12 +69,12 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
     setSaving(true)
     setError(null)
     try {
-      let mediaPath = post?.media_path ?? null
-      if (file) {
+      const uploadedPaths: string[] = []
+      for (const file of newFiles) {
         const path = `${pageId}/${crypto.randomUUID()}-${file.name}`
         const { error: uploadError } = await supabase.storage.from('media').upload(path, file)
         if (uploadError) throw uploadError
-        mediaPath = path
+        uploadedPaths.push(path)
       }
 
       const payload = {
@@ -69,7 +84,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
         scheduled_at: new Date(scheduledAt).toISOString(),
         status,
         notes: notes || null,
-        media_path: mediaPath,
+        media_paths: [...existingPaths, ...uploadedPaths],
       }
 
       const { error: saveError } = post
@@ -146,14 +161,47 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Immagine</label>
-        {currentMediaUrl && !file && (
-          <img src={currentMediaUrl} alt="" className="h-24 w-24 rounded object-cover mb-2" />
+        <label className="text-sm text-neutral-600">Immagini</label>
+        {(existingUrls.length > 0 || newFiles.length > 0) && (
+          <div className="mb-2 flex flex-wrap gap-2">
+            {existingUrls.map(({ path, url }) => (
+              <div key={path} className="relative">
+                <img src={url} alt="" className="h-24 w-24 rounded object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeExisting(path)}
+                  className="absolute -right-1 -top-1 rounded-full bg-brand-800 px-1.5 text-xs text-white"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            {newFiles.map((f, i) => (
+              <div key={`${f.name}-${i}`} className="relative">
+                <img
+                  src={URL.createObjectURL(f)}
+                  alt=""
+                  className="h-24 w-24 rounded object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeNewFile(i)}
+                  className="absolute -right-1 -top-1 rounded-full bg-brand-800 px-1.5 text-xs text-white"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
         )}
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          multiple
+          onChange={(e) => {
+            addFiles(e.target.files)
+            e.target.value = ''
+          }}
           className="w-full text-sm"
         />
       </div>

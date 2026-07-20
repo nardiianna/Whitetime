@@ -26,7 +26,7 @@ export interface Post {
   page_id: string
   category_id: string | null
   caption: string
-  media_path: string | null
+  media_paths: string[]
   scheduled_at: string
   status: PostStatus
   reminder_sent: boolean

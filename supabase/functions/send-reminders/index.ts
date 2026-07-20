@@ -35,12 +35,29 @@ async function sendTelegramPhoto(photoUrl: string, caption: string) {
   if (!res.ok) console.error("sendPhoto failed", await res.text());
 }
 
+async function sendTelegramMediaGroup(photoUrls: string[], caption: string) {
+  const truncated = caption.length > PHOTO_CAPTION_LIMIT
+    ? caption.slice(0, PHOTO_CAPTION_LIMIT - 1) + "…"
+    : caption;
+  const media = photoUrls.slice(0, 10).map((url, i) => ({
+    type: "photo",
+    media: url,
+    ...(i === 0 ? { caption: truncated, parse_mode: "HTML" } : {}),
+  }));
+  const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMediaGroup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, media }),
+  });
+  if (!res.ok) console.error("sendMediaGroup failed", await res.text());
+}
+
 Deno.serve(async () => {
   const windowEnd = new Date(Date.now() + REMINDER_WINDOW_MINUTES * 60_000).toISOString();
 
   const { data: duePosts, error } = await supabase
     .from("posts")
-    .select("id, caption, media_path, scheduled_at, page:pages(name), category:categories(name)")
+    .select("id, caption, media_paths, scheduled_at, page:pages(name), category:categories(name)")
     .eq("reminder_sent", false)
     .lte("scheduled_at", windowEnd);
 
@@ -56,9 +73,13 @@ Deno.serve(async () => {
     const header = categoryName ? `${pageName} · ${categoryName}` : pageName;
     const caption = `📅 <b>${header}</b> — ${time}\n\n${post.caption || "(nessuna caption)"}`;
 
-    if (post.media_path) {
-      const { data: pub } = supabase.storage.from("media").getPublicUrl(post.media_path);
-      await sendTelegramPhoto(pub.publicUrl, caption);
+    const mediaPaths: string[] = post.media_paths ?? [];
+    const photoUrls = mediaPaths.map((path) => supabase.storage.from("media").getPublicUrl(path).data.publicUrl);
+
+    if (photoUrls.length > 1) {
+      await sendTelegramMediaGroup(photoUrls, caption);
+    } else if (photoUrls.length === 1) {
+      await sendTelegramPhoto(photoUrls[0], caption);
     } else {
       await sendTelegramMessage(caption);
     }
