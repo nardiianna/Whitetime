@@ -39,7 +39,8 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
 
   function addFiles(fileList: FileList | null) {
     if (!fileList) return
-    setNewFiles((prev) => [...prev, ...Array.from(fileList)])
+    const files = Array.from(fileList)
+    setNewFiles((prev) => [...prev, ...files])
   }
 
   function removeExisting(path: string) {
