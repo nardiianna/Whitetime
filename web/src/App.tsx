@@ -46,7 +46,9 @@ function App() {
   const [editingPost, setEditingPost] = useState<Post | undefined>(undefined)
   const [defaultScheduledAt, setDefaultScheduledAt] = useState<string | undefined>(undefined)
   const [showPageForm, setShowPageForm] = useState(false)
+  const [editingPage, setEditingPage] = useState<Page | undefined>(undefined)
   const [showCategoryForm, setShowCategoryForm] = useState(false)
+  const [editingCategory, setEditingCategory] = useState<Category | undefined>(undefined)
   const [weekStart, setWeekStart] = useState(() => getMonday(new Date()))
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar')
 
@@ -175,6 +177,62 @@ function App() {
     if (data) openEditPost(data)
   }
 
+  function openNewPageForm() {
+    setEditingPage(undefined)
+    setShowPageForm(true)
+  }
+
+  function openEditPage(page: Page) {
+    setEditingPage(page)
+    setShowPageForm(true)
+  }
+
+  async function handlePageDelete(page: Page) {
+    if (
+      !confirm(
+        `Eliminare il cliente "${page.name}"? Verranno eliminati anche tutti i suoi post e le idee salvate. Azione irreversibile.`,
+      )
+    )
+      return
+
+    const { data: pagePosts } = await supabase.from('posts').select('media_paths').eq('page_id', page.id)
+    const mediaToRemove = (pagePosts ?? []).flatMap((p) => p.media_paths ?? [])
+    if (mediaToRemove.length > 0) {
+      const { error } = await supabase.storage.from('media').remove(mediaToRemove)
+      if (error) console.error('Failed to delete media for page', error)
+    }
+
+    await supabase.from('pages').delete().eq('id', page.id)
+    setShowPageForm(false)
+    setEditingPage(undefined)
+    if (selectedPageId === page.id) setSelectedPageId(ALL)
+    loadPages()
+    loadPosts()
+  }
+
+  function openNewCategoryForm() {
+    setEditingCategory(undefined)
+    setShowCategoryForm(true)
+  }
+
+  function openEditCategory(category: Category) {
+    setEditingCategory(category)
+    setShowCategoryForm(true)
+  }
+
+  async function handleCategoryDelete(category: Category) {
+    if (
+      !confirm(`Eliminare la categoria "${category.name}"? I post con questa categoria resteranno, senza categoria.`)
+    )
+      return
+    await supabase.from('categories').delete().eq('id', category.id)
+    setShowCategoryForm(false)
+    setEditingCategory(undefined)
+    if (selectedCategoryId === category.id) setSelectedCategoryId(ALL)
+    loadCategories()
+    loadPosts()
+  }
+
   function openNewPost(date?: Date) {
     setEditingPost(undefined)
     setDefaultScheduledAt(date ? toDateInputDefault(date) : undefined)
@@ -211,20 +269,29 @@ function App() {
             Tutte
           </button>
           {pages.map((page) => (
-            <button
-              key={page.id}
-              onClick={() => setSelectedPageId(page.id)}
-              className={`rounded-full px-3 py-1.5 text-sm ${
-                selectedPageId === page.id
-                  ? 'bg-brand-300 text-neutral-800'
-                  : 'border border-brand-200 text-brand-700'
-              }`}
-            >
-              {page.name}
-            </button>
+            <div key={page.id} className="flex items-center gap-0.5">
+              <button
+                onClick={() => setSelectedPageId(page.id)}
+                className={`rounded-full px-3 py-1.5 text-sm ${
+                  selectedPageId === page.id
+                    ? 'bg-brand-300 text-neutral-800'
+                    : 'border border-brand-200 text-brand-700'
+                }`}
+              >
+                {page.name}
+              </button>
+              <button
+                onClick={() => openEditPage(page)}
+                className="rounded-full p-1 text-xs text-brand-400 hover:text-brand-700"
+                title="Modifica cliente"
+                aria-label={`Modifica ${page.name}`}
+              >
+                ✎
+              </button>
+            </div>
           ))}
           <button
-            onClick={() => setShowPageForm(true)}
+            onClick={openNewPageForm}
             className="rounded-full border border-dashed border-brand-300 px-3 py-1.5 text-sm text-brand-700"
           >
             + Cliente
@@ -234,11 +301,18 @@ function App() {
         {showPageForm && (
           <div className="mb-4">
             <PageForm
+              page={editingPage}
               onSaved={() => {
                 setShowPageForm(false)
+                setEditingPage(undefined)
                 loadPages()
+                loadPosts()
               }}
-              onCancel={() => setShowPageForm(false)}
+              onCancel={() => {
+                setShowPageForm(false)
+                setEditingPage(undefined)
+              }}
+              onDelete={editingPage ? () => handlePageDelete(editingPage) : undefined}
             />
           </div>
         )}
@@ -256,30 +330,46 @@ function App() {
               Tutte le categorie
             </button>
             {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategoryId(category.id)}
-                className={`rounded-full px-3 py-1 text-xs ${
-                  selectedCategoryId === category.id
-                    ? 'bg-brand-200 text-neutral-800'
-                    : 'border border-brand-100 text-brand-600'
-                }`}
-              >
-                {category.name}
-              </button>
+              <div key={category.id} className="flex items-center gap-0.5">
+                <button
+                  onClick={() => setSelectedCategoryId(category.id)}
+                  className={`rounded-full px-3 py-1 text-xs ${
+                    selectedCategoryId === category.id
+                      ? 'bg-brand-200 text-neutral-800'
+                      : 'border border-brand-100 text-brand-600'
+                  }`}
+                >
+                  {category.name}
+                </button>
+                <button
+                  onClick={() => openEditCategory(category)}
+                  className="rounded-full p-1 text-xs text-brand-300 hover:text-brand-600"
+                  title="Modifica categoria"
+                  aria-label={`Modifica ${category.name}`}
+                >
+                  ✎
+                </button>
+              </div>
             ))}
             {showCategoryForm ? (
               <CategoryForm
                 pageId={selectedPageId}
+                category={editingCategory}
                 onSaved={() => {
                   setShowCategoryForm(false)
+                  setEditingCategory(undefined)
                   loadCategories()
+                  loadPosts()
                 }}
-                onCancel={() => setShowCategoryForm(false)}
+                onCancel={() => {
+                  setShowCategoryForm(false)
+                  setEditingCategory(undefined)
+                }}
+                onDelete={editingCategory ? () => handleCategoryDelete(editingCategory) : undefined}
               />
             ) : (
               <button
-                onClick={() => setShowCategoryForm(true)}
+                onClick={openNewCategoryForm}
                 className="rounded-full border border-dashed border-brand-200 px-3 py-1 text-xs text-brand-600"
               >
                 + Categoria

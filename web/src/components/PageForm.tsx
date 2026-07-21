@@ -1,16 +1,19 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
+import type { Page } from '../types'
 
 interface Props {
+  page?: Page
   onSaved: () => void
   onCancel: () => void
+  onDelete?: () => void
 }
 
-export function PageForm({ onSaved, onCancel }: Props) {
-  const [name, setName] = useState('')
-  const [instagramUsername, setInstagramUsername] = useState('')
-  const [notes, setNotes] = useState('')
+export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
+  const [name, setName] = useState(page?.name ?? '')
+  const [instagramUsername, setInstagramUsername] = useState(page?.instagram_username ?? '')
+  const [notes, setNotes] = useState(page?.notes ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -19,11 +22,14 @@ export function PageForm({ onSaved, onCancel }: Props) {
     setSaving(true)
     setError(null)
     try {
-      const { error: saveError } = await supabase.from('pages').insert({
+      const payload = {
         name: name.trim(),
         instagram_username: instagramUsername.trim() || null,
         notes: notes.trim() || null,
-      })
+      }
+      const { error: saveError } = page
+        ? await supabase.from('pages').update(payload).eq('id', page.id)
+        : await supabase.from('pages').insert(payload)
       if (saveError) throw saveError
       onSaved()
     } catch (err) {
@@ -70,21 +76,34 @@ export function PageForm({ onSaved, onCancel }: Props) {
 
       {error && <p className="text-sm text-brand-700">{error}</p>}
 
-      <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-md border border-brand-200 px-3 py-2 text-sm text-brand-700"
-        >
-          Annulla
-        </button>
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400 disabled:opacity-50"
-        >
-          {saving ? 'Salvataggio…' : 'Salva'}
-        </button>
+      <div className="flex items-center justify-between gap-2">
+        {page && onDelete ? (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="rounded-md border border-red-200 px-3 py-2 text-sm text-red-700"
+          >
+            Elimina cliente
+          </button>
+        ) : (
+          <span />
+        )}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-md border border-brand-200 px-3 py-2 text-sm text-brand-700"
+          >
+            Annulla
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400 disabled:opacity-50"
+          >
+            {saving ? 'Salvataggio…' : 'Salva'}
+          </button>
+        </div>
       </div>
     </form>
   )
