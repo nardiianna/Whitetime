@@ -14,12 +14,12 @@ interface Props {
   onQuickAdd: (date: Date) => void
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  idea: 'bg-white text-brand-600 border border-brand-200',
-  da_fare: 'bg-brand-50 text-brand-600',
-  programmato: 'bg-brand-100 text-brand-700',
-  promemoria_inviato: 'bg-brand-200 text-brand-800',
-  pubblicato: 'bg-brand-300 text-neutral-800 font-medium',
+const STATUS_DOT: Record<string, string> = {
+  idea: 'border border-brand-300 bg-white',
+  da_fare: 'bg-brand-200',
+  programmato: 'bg-brand-400',
+  promemoria_inviato: 'bg-brand-600',
+  pubblicato: 'bg-brand-800',
 }
 
 function addDays(date: Date, days: number) {
@@ -51,7 +51,7 @@ export function WeekCalendar({
   const rangeLabel = `${weekStart.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })} – ${weekEnd.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}`
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <button
           onClick={onPrevWeek}
@@ -78,100 +78,95 @@ export function WeekCalendar({
         </button>
       </div>
 
-      {days.map((day) => {
-        const dayPosts = posts.filter((post) => isSameDay(new Date(post.scheduled_at), day))
-        const isToday = isSameDay(day, today)
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-2">
+          {days.map((day) => {
+            const dayPosts = posts.filter((post) => isSameDay(new Date(post.scheduled_at), day))
+            const isToday = isSameDay(day, today)
 
-        return (
-          <div key={day.toISOString()} className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span
-                className={`text-sm font-semibold ${isToday ? 'text-brand-700' : 'text-neutral-700'}`}
-              >
-                {day.toLocaleDateString('it-IT', { weekday: 'long', day: '2-digit', month: '2-digit' })}
-                {isToday && <span className="ml-2 rounded-full bg-brand-200 px-2 py-0.5 text-xs">Oggi</span>}
-              </span>
-              <button
-                onClick={() => onQuickAdd(day)}
-                className="rounded-full border border-dashed border-brand-300 px-2 py-0.5 text-xs text-brand-700"
-              >
-                + post
-              </button>
-            </div>
-
-            {dayPosts.length === 0 ? (
-              <p className="pl-1 text-xs text-neutral-400">Nessun post</p>
-            ) : (
-              <ul className="space-y-2">
-                {dayPosts.map((post) => (
-                  <li
-                    key={post.id}
-                    className="flex flex-col gap-3 rounded-lg border border-brand-100 bg-white p-3 sm:flex-row sm:items-center"
+            return (
+              <div key={day.toISOString()} className="min-w-[124px] flex-1 space-y-1.5">
+                <div
+                  className={`flex items-center justify-between rounded-md px-1.5 py-1 ${
+                    isToday ? 'bg-brand-100' : ''
+                  }`}
+                >
+                  <span
+                    className={`text-xs font-semibold capitalize ${
+                      isToday ? 'text-brand-700' : 'text-neutral-700'
+                    }`}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-medium text-neutral-900">
+                    {day.toLocaleDateString('it-IT', { weekday: 'short' })}{' '}
+                    <span className="font-normal text-neutral-500">
+                      {day.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })}
+                    </span>
+                  </span>
+                  <button
+                    onClick={() => onQuickAdd(day)}
+                    className="rounded-full border border-dashed border-brand-300 px-1.5 text-xs leading-5 text-brand-700"
+                    aria-label="Aggiungi post"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="space-y-1.5">
+                  {dayPosts.length === 0 && <p className="px-1.5 text-[11px] text-neutral-300">—</p>}
+                  {dayPosts.map((post) => (
+                    <div
+                      key={post.id}
+                      onClick={() => onEdit(post)}
+                      className="cursor-pointer space-y-1 rounded-md border border-brand-100 bg-white p-1.5 text-xs hover:border-brand-300"
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-medium text-neutral-900">
                           {new Date(post.scheduled_at).toLocaleTimeString('it-IT', {
                             hour: '2-digit',
                             minute: '2-digit',
                           })}
                         </span>
-                        <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[post.status]}`}>
-                          {STATUS_LABELS[post.status]}
-                        </span>
-                        {post.category?.name && (
-                          <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
-                            {post.category.name}
-                          </span>
-                        )}
-                        {post.reminder_error && (
-                          <span
-                            className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700"
-                            title={post.reminder_error}
-                          >
-                            ⚠️ Promemoria non inviato
-                          </span>
-                        )}
+                        <span
+                          className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[post.status]}`}
+                          title={STATUS_LABELS[post.status]}
+                        />
                       </div>
-                      <p className="truncate text-sm text-neutral-600">
+                      {post.category?.name && (
+                        <span className="block truncate text-[10px] text-brand-600">
+                          {post.category.name}
+                        </span>
+                      )}
+                      <p className="line-clamp-2 text-neutral-600">
                         {post.caption || '(nessuna caption)'}
                       </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2 sm:shrink-0">
-                      {post.status !== 'pubblicato' && (
-                        <button
-                          onClick={() => onMarkPublished(post)}
-                          className="rounded-md border border-brand-200 px-2 py-1 text-xs text-brand-700"
-                        >
-                          Segna pubblicato
-                        </button>
+                      {post.reminder_error && (
+                        <span className="block text-[10px] text-red-700" title={post.reminder_error}>
+                          ⚠️ non inviato
+                        </span>
                       )}
-                      <button
-                        onClick={() => onEdit(post)}
-                        className="rounded-md border border-brand-200 px-2 py-1 text-xs text-brand-700"
+                      <div
+                        className="flex gap-1.5 pt-0.5 text-[11px] text-brand-700"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        Modifica
-                      </button>
-                      <button
-                        onClick={() => onDuplicate(post)}
-                        className="rounded-md border border-brand-200 px-2 py-1 text-xs text-brand-700"
-                      >
-                        Duplica
-                      </button>
-                      <button
-                        onClick={() => onDelete(post)}
-                        className="rounded-md border border-brand-300 px-2 py-1 text-xs text-brand-800"
-                      >
-                        Elimina
-                      </button>
+                        {post.status !== 'pubblicato' && (
+                          <button onClick={() => onMarkPublished(post)} title="Segna pubblicato">
+                            ✓
+                          </button>
+                        )}
+                        <button onClick={() => onDuplicate(post)} title="Duplica">
+                          ⧉
+                        </button>
+                        <button onClick={() => onDelete(post)} title="Elimina" className="text-brand-800">
+                          ✕
+                        </button>
+                      </div>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )
-      })}
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
