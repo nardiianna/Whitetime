@@ -14,13 +14,20 @@ const PHOTO_CAPTION_LIMIT = 1024;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+async function telegramError(res: Response, label: string) {
+  const body = await res.text();
+  console.error(`${label} failed`, body);
+  return `${label}: ${body.slice(0, 300)}`;
+}
+
 async function sendTelegramMessage(text: string) {
   const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "HTML" }),
   });
-  if (!res.ok) console.error("sendMessage failed", await res.text());
+  if (!res.ok) return telegramError(res, "sendMessage");
+  return null;
 }
 
 async function sendTelegramPhoto(photoUrl: string, caption: string) {
@@ -32,7 +39,8 @@ async function sendTelegramPhoto(photoUrl: string, caption: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, photo: photoUrl, caption: truncated, parse_mode: "HTML" }),
   });
-  if (!res.ok) console.error("sendPhoto failed", await res.text());
+  if (!res.ok) return telegramError(res, "sendPhoto");
+  return null;
 }
 
 async function sendTelegramMediaGroup(photoUrls: string[], caption: string) {
@@ -49,7 +57,8 @@ async function sendTelegramMediaGroup(photoUrls: string[], caption: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, media }),
   });
-  if (!res.ok) console.error("sendMediaGroup failed", await res.text());
+  if (!res.ok) return telegramError(res, "sendMediaGroup");
+  return null;
 }
 
 Deno.serve(async () => {
@@ -76,17 +85,21 @@ Deno.serve(async () => {
     const mediaPaths: string[] = post.media_paths ?? [];
     const photoUrls = mediaPaths.map((path) => supabase.storage.from("media").getPublicUrl(path).data.publicUrl);
 
-    if (photoUrls.length > 1) {
-      await sendTelegramMediaGroup(photoUrls, caption);
-    } else if (photoUrls.length === 1) {
-      await sendTelegramPhoto(photoUrls[0], caption);
-    } else {
-      await sendTelegramMessage(caption);
+    const sendError = photoUrls.length > 1
+      ? await sendTelegramMediaGroup(photoUrls, caption)
+      : photoUrls.length === 1
+      ? await sendTelegramPhoto(photoUrls[0], caption)
+      : await sendTelegramMessage(caption);
+
+    if (sendError) {
+      // Leave reminder_sent false so the next cron run retries; surface the failure in the UI.
+      await supabase.from("posts").update({ reminder_error: sendError }).eq("id", post.id);
+      continue;
     }
 
     await supabase
       .from("posts")
-      .update({ reminder_sent: true, status: "promemoria_inviato" })
+      .update({ reminder_sent: true, status: "promemoria_inviato", reminder_error: null })
       .eq("id", post.id);
   }
 

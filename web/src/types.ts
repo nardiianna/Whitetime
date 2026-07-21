@@ -30,6 +30,7 @@ export interface Post {
   scheduled_at: string
   status: PostStatus
   reminder_sent: boolean
+  reminder_error: string | null
   notes: string | null
   created_at: string
   category?: { name: string } | null

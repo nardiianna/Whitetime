@@ -51,6 +51,14 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished }: Props) {
                   {post.category.name}
                 </span>
               )}
+              {post.reminder_error && (
+                <span
+                  className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700"
+                  title={post.reminder_error}
+                >
+                  ⚠️ Promemoria non inviato
+                </span>
+              )}
             </div>
             <p className="truncate text-sm text-neutral-600">
               {post.caption || '(nessuna caption)'}
