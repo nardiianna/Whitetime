@@ -3,7 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import { Login } from './components/Login'
 import { PostForm } from './components/PostForm'
-import { PostList } from './components/PostList'
+import { WeekCalendar } from './components/WeekCalendar'
 import { IdeasBank } from './components/IdeasBank'
 import { PageForm } from './components/PageForm'
 import { CategoryForm } from './components/CategoryForm'
@@ -11,6 +11,26 @@ import logo from './assets/logo.png'
 import type { Page, Post, ContentIdea, Category } from './types'
 
 const ALL = 'all'
+
+function getMonday(date: Date) {
+  const d = new Date(date)
+  const day = d.getDay()
+  const diff = (day === 0 ? -6 : 1) - day
+  d.setDate(d.getDate() + diff)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+function addDays(date: Date, days: number) {
+  const d = new Date(date)
+  d.setDate(d.getDate() + days)
+  return d
+}
+
+function toDateInputDefault(date: Date) {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T09:00`
+}
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -23,8 +43,10 @@ function App() {
   const [ideas, setIdeas] = useState<ContentIdea[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingPost, setEditingPost] = useState<Post | undefined>(undefined)
+  const [defaultScheduledAt, setDefaultScheduledAt] = useState<string | undefined>(undefined)
   const [showPageForm, setShowPageForm] = useState(false)
   const [showCategoryForm, setShowCategoryForm] = useState(false)
+  const [weekStart, setWeekStart] = useState(() => getMonday(new Date()))
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -110,8 +132,47 @@ function App() {
     loadPosts()
   }
 
-  function openNewPost() {
+  async function handleDuplicate(post: Post) {
+    const mediaPaths: string[] = []
+    for (const path of post.media_paths) {
+      const newPath = `${post.page_id}/${crypto.randomUUID()}-${path.split('/').pop()}`
+      const { error } = await supabase.storage.from('media').copy(path, newPath)
+      if (error) {
+        console.error('Failed to copy media', error)
+        continue
+      }
+      mediaPaths.push(newPath)
+    }
+
+    const scheduledAt = new Date(post.scheduled_at)
+    scheduledAt.setDate(scheduledAt.getDate() + 7)
+
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({
+        page_id: post.page_id,
+        category_id: post.category_id,
+        caption: post.caption,
+        media_paths: mediaPaths,
+        scheduled_at: scheduledAt.toISOString(),
+        status: 'da_fare',
+        notes: post.notes,
+      })
+      .select('*, category:categories(name)')
+      .single()
+
+    if (error) {
+      console.error('Failed to duplicate post', error)
+      return
+    }
+
+    await loadPosts()
+    if (data) openEditPost(data)
+  }
+
+  function openNewPost(date?: Date) {
     setEditingPost(undefined)
+    setDefaultScheduledAt(date ? toDateInputDefault(date) : undefined)
     setShowForm(true)
   }
 
@@ -224,7 +285,7 @@ function App() {
 
         <div className="mb-4 flex justify-end">
           <button
-            onClick={openNewPost}
+            onClick={() => openNewPost()}
             className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400"
           >
             + Nuovo post
@@ -237,6 +298,7 @@ function App() {
               pages={pages}
               defaultPageId={selectedPageId !== ALL ? selectedPageId : pages[0]?.id ?? ''}
               post={editingPost}
+              defaultScheduledAt={defaultScheduledAt}
               onSaved={() => {
                 setShowForm(false)
                 loadPosts()
@@ -246,11 +308,17 @@ function App() {
           </div>
         )}
 
-        <PostList
+        <WeekCalendar
           posts={posts}
+          weekStart={weekStart}
+          onPrevWeek={() => setWeekStart((prev) => addDays(prev, -7))}
+          onNextWeek={() => setWeekStart((prev) => addDays(prev, 7))}
+          onToday={() => setWeekStart(getMonday(new Date()))}
           onEdit={openEditPost}
           onDelete={handleDelete}
           onMarkPublished={handleMarkPublished}
+          onDuplicate={handleDuplicate}
+          onQuickAdd={openNewPost}
         />
 
         {selectedPageId !== ALL && (

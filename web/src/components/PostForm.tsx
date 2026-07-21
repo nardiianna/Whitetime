@@ -8,6 +8,7 @@ interface Props {
   pages: Page[]
   defaultPageId: string
   post?: Post
+  defaultScheduledAt?: string
   onSaved: () => void
   onCancel: () => void
 }
@@ -19,12 +20,14 @@ function toLocalInputValue(iso: string | undefined) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Props) {
+export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSaved, onCancel }: Props) {
   const [pageId, setPageId] = useState(post?.page_id ?? defaultPageId)
   const [categoryId, setCategoryId] = useState(post?.category_id ?? '')
   const [categories, setCategories] = useState<Category[]>([])
   const [caption, setCaption] = useState(post?.caption ?? '')
-  const [scheduledAt, setScheduledAt] = useState(toLocalInputValue(post?.scheduled_at))
+  const [scheduledAt, setScheduledAt] = useState(
+    post ? toLocalInputValue(post.scheduled_at) : (defaultScheduledAt ?? ''),
+  )
   const [status, setStatus] = useState<PostStatus>(post?.status ?? 'programmato')
   const [notes, setNotes] = useState(post?.notes ?? '')
   const [existingPaths, setExistingPaths] = useState(post?.media_paths ?? [])
