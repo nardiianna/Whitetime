@@ -65,7 +65,10 @@ function App() {
   }, [])
 
   const loadPosts = useCallback(async () => {
-    let query = supabase.from('posts').select('*, category:categories(name)').order('scheduled_at')
+    let query = supabase
+      .from('posts')
+      .select('*, category:categories(name), page:pages(name)')
+      .order('scheduled_at')
     if (selectedPageId !== ALL) query = query.eq('page_id', selectedPageId)
     if (selectedCategoryId !== ALL) query = query.eq('category_id', selectedCategoryId)
     const { data } = await query
@@ -158,7 +161,7 @@ function App() {
         status: 'da_fare',
         notes: post.notes,
       })
-      .select('*, category:categories(name)')
+      .select('*, category:categories(name), page:pages(name)')
       .single()
 
     if (error) {

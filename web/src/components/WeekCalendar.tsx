@@ -119,22 +119,25 @@ export function WeekCalendar({
                       className="cursor-pointer space-y-1 rounded-md border border-brand-100 bg-white p-1.5 text-xs hover:border-brand-300"
                     >
                       <div className="flex items-center justify-between gap-1">
-                        <span className="font-medium text-neutral-900">
-                          {new Date(post.scheduled_at).toLocaleTimeString('it-IT', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                        <span className="truncate font-semibold text-neutral-900">
+                          {post.page?.name ?? 'Cliente'}
                         </span>
                         <span
                           className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[post.status]}`}
                           title={STATUS_LABELS[post.status]}
                         />
                       </div>
-                      {post.category?.name && (
-                        <span className="block truncate text-[10px] text-brand-600">
-                          {post.category.name}
+                      <div className="flex items-center gap-1 text-[10px] text-neutral-500">
+                        <span>
+                          {new Date(post.scheduled_at).toLocaleTimeString('it-IT', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
                         </span>
-                      )}
+                        {post.category?.name && (
+                          <span className="truncate text-brand-600">· {post.category.name}</span>
+                        )}
+                      </div>
                       <p className="line-clamp-2 text-neutral-600">
                         {post.caption || '(nessuna caption)'}
                       </p>

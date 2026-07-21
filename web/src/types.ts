@@ -34,6 +34,7 @@ export interface Post {
   notes: string | null
   created_at: string
   category?: { name: string } | null
+  page?: { name: string } | null
 }
 
 export interface ContentIdea {
