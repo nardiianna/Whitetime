@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase'
 import { Login } from './components/Login'
 import { PostForm } from './components/PostForm'
 import { WeekCalendar } from './components/WeekCalendar'
+import { PostList } from './components/PostList'
 import { IdeasBank } from './components/IdeasBank'
 import { PageForm } from './components/PageForm'
 import { CategoryForm } from './components/CategoryForm'
@@ -47,6 +48,7 @@ function App() {
   const [showPageForm, setShowPageForm] = useState(false)
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [weekStart, setWeekStart] = useState(() => getMonday(new Date()))
+  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -286,7 +288,25 @@ function App() {
           </div>
         )}
 
-        <div className="mb-4 flex justify-end">
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <div className="flex gap-1 rounded-full border border-brand-200 p-0.5">
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`rounded-full px-3 py-1 text-xs ${
+                viewMode === 'calendar' ? 'bg-brand-300 text-neutral-800' : 'text-brand-700'
+              }`}
+            >
+              Calendario
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`rounded-full px-3 py-1 text-xs ${
+                viewMode === 'list' ? 'bg-brand-300 text-neutral-800' : 'text-brand-700'
+              }`}
+            >
+              Elenco
+            </button>
+          </div>
           <button
             onClick={() => openNewPost()}
             className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400"
@@ -311,18 +331,28 @@ function App() {
           </div>
         )}
 
-        <WeekCalendar
-          posts={posts}
-          weekStart={weekStart}
-          onPrevWeek={() => setWeekStart((prev) => addDays(prev, -7))}
-          onNextWeek={() => setWeekStart((prev) => addDays(prev, 7))}
-          onToday={() => setWeekStart(getMonday(new Date()))}
-          onEdit={openEditPost}
-          onDelete={handleDelete}
-          onMarkPublished={handleMarkPublished}
-          onDuplicate={handleDuplicate}
-          onQuickAdd={openNewPost}
-        />
+        {viewMode === 'calendar' ? (
+          <WeekCalendar
+            posts={posts}
+            weekStart={weekStart}
+            onPrevWeek={() => setWeekStart((prev) => addDays(prev, -7))}
+            onNextWeek={() => setWeekStart((prev) => addDays(prev, 7))}
+            onToday={() => setWeekStart(getMonday(new Date()))}
+            onEdit={openEditPost}
+            onDelete={handleDelete}
+            onMarkPublished={handleMarkPublished}
+            onDuplicate={handleDuplicate}
+            onQuickAdd={openNewPost}
+          />
+        ) : (
+          <PostList
+            posts={posts}
+            onEdit={openEditPost}
+            onDelete={handleDelete}
+            onMarkPublished={handleMarkPublished}
+            onDuplicate={handleDuplicate}
+          />
+        )}
 
         {selectedPageId !== ALL && (
           <div className="mt-6">
