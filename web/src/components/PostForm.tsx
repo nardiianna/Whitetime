@@ -28,6 +28,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
   const [status, setStatus] = useState<PostStatus>(post?.status ?? 'programmato')
   const [notes, setNotes] = useState(post?.notes ?? '')
   const [existingPaths, setExistingPaths] = useState(post?.media_paths ?? [])
+  const [removedPaths, setRemovedPaths] = useState<string[]>([])
   const [newFiles, setNewFiles] = useState<File[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,6 +46,7 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
 
   function removeExisting(path: string) {
     setExistingPaths((prev) => prev.filter((p) => p !== path))
+    setRemovedPaths((prev) => [...prev, path])
   }
 
   function removeNewFile(index: number) {
@@ -93,6 +95,12 @@ export function PostForm({ pages, defaultPageId, post, onSaved, onCancel }: Prop
         : await supabase.from('posts').insert(payload)
 
       if (saveError) throw saveError
+
+      if (removedPaths.length > 0) {
+        const { error: removeError } = await supabase.storage.from('media').remove(removedPaths)
+        if (removeError) console.error('Failed to delete removed media', removeError)
+      }
+
       onSaved()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Errore durante il salvataggio')

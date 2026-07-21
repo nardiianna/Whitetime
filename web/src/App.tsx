@@ -97,6 +97,10 @@ function App() {
 
   async function handleDelete(post: Post) {
     if (!confirm('Eliminare questo post?')) return
+    if (post.media_paths.length > 0) {
+      const { error } = await supabase.storage.from('media').remove(post.media_paths)
+      if (error) console.error('Failed to delete media', error)
+    }
     await supabase.from('posts').delete().eq('id', post.id)
     loadPosts()
   }
