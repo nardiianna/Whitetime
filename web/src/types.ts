@@ -1,4 +1,5 @@
 export type PostStatus = 'idea' | 'da_fare' | 'programmato' | 'promemoria_inviato' | 'pubblicato'
+export type PageType = 'client' | 'personal'
 
 export const STATUS_LABELS: Record<PostStatus, string> = {
   idea: 'Idea',
@@ -8,9 +9,15 @@ export const STATUS_LABELS: Record<PostStatus, string> = {
   pubblicato: 'Pubblicato',
 }
 
+export function statusLabel(status: PostStatus, isPersonal: boolean) {
+  if (isPersonal && status === 'pubblicato') return 'Fatto'
+  return STATUS_LABELS[status]
+}
+
 export interface Page {
   id: string
   name: string
+  type: PageType
   instagram_username: string | null
   notes: string | null
 }
@@ -34,7 +41,7 @@ export interface Post {
   notes: string | null
   created_at: string
   category?: { name: string } | null
-  page?: { name: string } | null
+  page?: { name: string; type: PageType } | null
 }
 
 export interface ContentIdea {

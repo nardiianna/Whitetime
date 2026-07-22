@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
-import { STATUS_LABELS } from '../types'
+import { STATUS_LABELS, statusLabel } from '../types'
 import type { Page, Post, PostStatus, Category } from '../types'
 
 interface Props {
@@ -35,6 +35,8 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
   const [newFiles, setNewFiles] = useState<File[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const isPersonal = pages.find((p) => p.id === pageId)?.type === 'personal'
 
   const existingUrls = existingPaths.map((path) => ({
     path,
@@ -133,7 +135,9 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Data e ora pubblicazione</label>
+          <label className="text-sm text-neutral-600">
+            {isPersonal ? 'Data e ora' : 'Data e ora pubblicazione'}
+          </label>
           <input
             type="datetime-local"
             required
@@ -163,7 +167,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
       )}
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Caption</label>
+        <label className="text-sm text-neutral-600">{isPersonal ? 'Descrizione' : 'Caption'}</label>
         <textarea
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
@@ -172,51 +176,53 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
         />
       </div>
 
-      <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Immagini</label>
-        {(existingUrls.length > 0 || newFiles.length > 0) && (
-          <div className="mb-2 flex flex-wrap gap-2">
-            {existingUrls.map(({ path, url }) => (
-              <div key={path} className="relative">
-                <img src={url} alt="" className="h-24 w-24 rounded object-cover" />
-                <button
-                  type="button"
-                  onClick={() => removeExisting(path)}
-                  className="absolute -right-1 -top-1 rounded-full bg-brand-800 px-1.5 text-xs text-white"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-            {newFiles.map((f, i) => (
-              <div key={`${f.name}-${i}`} className="relative">
-                <img
-                  src={URL.createObjectURL(f)}
-                  alt=""
-                  className="h-24 w-24 rounded object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeNewFile(i)}
-                  className="absolute -right-1 -top-1 rounded-full bg-brand-800 px-1.5 text-xs text-white"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => {
-            addFiles(e.target.files)
-            e.target.value = ''
-          }}
-          className="w-full text-sm"
-        />
-      </div>
+      {!isPersonal && (
+        <div className="space-y-1">
+          <label className="text-sm text-neutral-600">Immagini</label>
+          {(existingUrls.length > 0 || newFiles.length > 0) && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {existingUrls.map(({ path, url }) => (
+                <div key={path} className="relative">
+                  <img src={url} alt="" className="h-24 w-24 rounded object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeExisting(path)}
+                    className="absolute -right-1 -top-1 rounded-full bg-brand-800 px-1.5 text-xs text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              {newFiles.map((f, i) => (
+                <div key={`${f.name}-${i}`} className="relative">
+                  <img
+                    src={URL.createObjectURL(f)}
+                    alt=""
+                    className="h-24 w-24 rounded object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeNewFile(i)}
+                    className="absolute -right-1 -top-1 rounded-full bg-brand-800 px-1.5 text-xs text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => {
+              addFiles(e.target.files)
+              e.target.value = ''
+            }}
+            className="w-full text-sm"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
@@ -226,9 +232,9 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
             onChange={(e) => setStatus(e.target.value as PostStatus)}
             className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
           >
-            {Object.entries(STATUS_LABELS).map(([value, label]) => (
+            {(Object.keys(STATUS_LABELS) as PostStatus[]).map((value) => (
               <option key={value} value={value}>
-                {label}
+                {statusLabel(value, isPersonal)}
               </option>
             ))}
           </select>

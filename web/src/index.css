@@ -11,6 +11,17 @@
   --color-brand-600: #c85f72;
   --color-brand-700: #a6485a;
   --color-brand-800: #7d3544;
+
+  /* Personal (free-time) pages: a cool blue-lavender to stand apart from client pink */
+  --color-personal-50: #f4f7ff;
+  --color-personal-100: #e6ecfe;
+  --color-personal-200: #cddcfc;
+  --color-personal-300: #a9c0f7;
+  --color-personal-400: #7fa0ef;
+  --color-personal-500: #5c82e0;
+  --color-personal-600: #4569c4;
+  --color-personal-700: #37549c;
+  --color-personal-800: #2b4278;
 }
 
 :root {

@@ -1,4 +1,4 @@
-import { STATUS_LABELS } from '../types'
+import { statusLabel } from '../types'
 import type { Post } from '../types'
 
 interface Props {
@@ -20,6 +20,14 @@ const STATUS_DOT: Record<string, string> = {
   programmato: 'bg-brand-400',
   promemoria_inviato: 'bg-brand-600',
   pubblicato: 'bg-brand-800',
+}
+
+const STATUS_DOT_PERSONAL: Record<string, string> = {
+  idea: 'border border-personal-300 bg-white',
+  da_fare: 'bg-personal-200',
+  programmato: 'bg-personal-400',
+  promemoria_inviato: 'bg-personal-600',
+  pubblicato: 'bg-personal-800',
 }
 
 function addDays(date: Date, days: number) {
@@ -112,58 +120,82 @@ export function WeekCalendar({
 
                 <div className="space-y-1.5">
                   {dayPosts.length === 0 && <p className="px-1.5 text-[11px] text-neutral-300">—</p>}
-                  {dayPosts.map((post) => (
-                    <div
-                      key={post.id}
-                      onClick={() => onEdit(post)}
-                      className="cursor-pointer space-y-1 rounded-md border border-brand-100 bg-white p-1.5 text-xs hover:border-brand-300"
-                    >
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="truncate font-semibold text-neutral-900">
-                          {post.page?.name ?? 'Cliente'}
-                        </span>
-                        <span
-                          className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[post.status]}`}
-                          title={STATUS_LABELS[post.status]}
-                        />
-                      </div>
-                      <div className="flex items-center gap-1 text-[10px] text-neutral-500">
-                        <span>
-                          {new Date(post.scheduled_at).toLocaleTimeString('it-IT', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                        {post.category?.name && (
-                          <span className="truncate text-brand-600">· {post.category.name}</span>
-                        )}
-                      </div>
-                      <p className="line-clamp-2 text-neutral-600">
-                        {post.caption || '(nessuna caption)'}
-                      </p>
-                      {post.reminder_error && (
-                        <span className="block text-[10px] text-red-700" title={post.reminder_error}>
-                          ⚠️ non inviato
-                        </span>
-                      )}
+                  {dayPosts.map((post) => {
+                    const isPersonal = post.page?.type === 'personal'
+                    return (
                       <div
-                        className="flex gap-1.5 pt-0.5 text-[11px] text-brand-700"
-                        onClick={(e) => e.stopPropagation()}
+                        key={post.id}
+                        onClick={() => onEdit(post)}
+                        className={`cursor-pointer space-y-1 rounded-md border bg-white p-1.5 text-xs ${
+                          isPersonal
+                            ? 'border-personal-200 hover:border-personal-400'
+                            : 'border-brand-100 hover:border-brand-300'
+                        }`}
                       >
-                        {post.status !== 'pubblicato' && (
-                          <button onClick={() => onMarkPublished(post)} title="Segna pubblicato">
-                            ✓
-                          </button>
+                        <div className="flex items-center justify-between gap-1">
+                          <span
+                            className={`truncate font-semibold ${
+                              isPersonal ? 'text-personal-700' : 'text-neutral-900'
+                            }`}
+                          >
+                            {post.page?.name ?? 'Cliente'}
+                          </span>
+                          <span
+                            className={`h-2 w-2 shrink-0 rounded-full ${
+                              isPersonal ? STATUS_DOT_PERSONAL[post.status] : STATUS_DOT[post.status]
+                            }`}
+                            title={statusLabel(post.status, isPersonal)}
+                          />
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] text-neutral-500">
+                          <span>
+                            {new Date(post.scheduled_at).toLocaleTimeString('it-IT', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                          {post.category?.name && (
+                            <span className={`truncate ${isPersonal ? 'text-personal-600' : 'text-brand-600'}`}>
+                              · {post.category.name}
+                            </span>
+                          )}
+                        </div>
+                        <p className="line-clamp-2 text-neutral-600">
+                          {post.caption || '(nessuna descrizione)'}
+                        </p>
+                        {post.reminder_error && (
+                          <span className="block text-[10px] text-red-700" title={post.reminder_error}>
+                            ⚠️ non inviato
+                          </span>
                         )}
-                        <button onClick={() => onDuplicate(post)} title="Duplica">
-                          ⧉
-                        </button>
-                        <button onClick={() => onDelete(post)} title="Elimina" className="text-brand-800">
-                          ✕
-                        </button>
+                        <div
+                          className={`flex gap-1.5 pt-0.5 text-[11px] ${
+                            isPersonal ? 'text-personal-700' : 'text-brand-700'
+                          }`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {post.status !== 'pubblicato' && (
+                            <button
+                              onClick={() => onMarkPublished(post)}
+                              title={isPersonal ? 'Segna fatto' : 'Segna pubblicato'}
+                            >
+                              ✓
+                            </button>
+                          )}
+                          <button onClick={() => onDuplicate(post)} title="Duplica">
+                            ⧉
+                          </button>
+                          <button
+                            onClick={() => onDelete(post)}
+                            title="Elimina"
+                            className={isPersonal ? 'text-personal-800' : 'text-brand-800'}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )

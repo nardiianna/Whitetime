@@ -71,7 +71,7 @@ function App() {
   const loadPosts = useCallback(async () => {
     let query = supabase
       .from('posts')
-      .select('*, category:categories(name), page:pages(name)')
+      .select('*, category:categories(name), page:pages(name, type)')
       .order('scheduled_at')
     if (selectedPageId !== ALL) query = query.eq('page_id', selectedPageId)
     if (selectedCategoryId !== ALL) query = query.eq('category_id', selectedCategoryId)
@@ -165,7 +165,7 @@ function App() {
         status: 'da_fare',
         notes: post.notes,
       })
-      .select('*, category:categories(name), page:pages(name)')
+      .select('*, category:categories(name), page:pages(name, type)')
       .single()
 
     if (error) {
@@ -268,28 +268,39 @@ function App() {
           >
             Tutte
           </button>
-          {pages.map((page) => (
-            <div key={page.id} className="flex items-center gap-0.5">
-              <button
-                onClick={() => setSelectedPageId(page.id)}
-                className={`rounded-full px-3 py-1.5 text-sm ${
-                  selectedPageId === page.id
-                    ? 'bg-brand-300 text-neutral-800'
-                    : 'border border-brand-200 text-brand-700'
-                }`}
-              >
-                {page.name}
-              </button>
-              <button
-                onClick={() => openEditPage(page)}
-                className="rounded-full p-1 text-xs text-brand-400 hover:text-brand-700"
-                title="Modifica cliente"
-                aria-label={`Modifica ${page.name}`}
-              >
-                ✎
-              </button>
-            </div>
-          ))}
+          {pages.map((page) => {
+            const isPersonalPage = page.type === 'personal'
+            return (
+              <div key={page.id} className="flex items-center gap-0.5">
+                <button
+                  onClick={() => setSelectedPageId(page.id)}
+                  className={`rounded-full px-3 py-1.5 text-sm ${
+                    selectedPageId === page.id
+                      ? isPersonalPage
+                        ? 'bg-personal-300 text-neutral-800'
+                        : 'bg-brand-300 text-neutral-800'
+                      : isPersonalPage
+                        ? 'border border-personal-200 text-personal-700'
+                        : 'border border-brand-200 text-brand-700'
+                  }`}
+                >
+                  {page.name}
+                </button>
+                <button
+                  onClick={() => openEditPage(page)}
+                  className={`rounded-full p-1 text-xs ${
+                    isPersonalPage
+                      ? 'text-personal-400 hover:text-personal-700'
+                      : 'text-brand-400 hover:text-brand-700'
+                  }`}
+                  title="Modifica cliente"
+                  aria-label={`Modifica ${page.name}`}
+                >
+                  ✎
+                </button>
+              </div>
+            )
+          })}
           <button
             onClick={openNewPageForm}
             className="rounded-full border border-dashed border-brand-300 px-3 py-1.5 text-sm text-brand-700"
@@ -319,38 +330,57 @@ function App() {
 
         {selectedPageId !== ALL && (
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setSelectedCategoryId(ALL)}
-              className={`rounded-full px-3 py-1 text-xs ${
-                selectedCategoryId === ALL
-                  ? 'bg-brand-200 text-neutral-800'
-                  : 'border border-brand-100 text-brand-600'
-              }`}
-            >
-              Tutte le categorie
-            </button>
-            {categories.map((category) => (
-              <div key={category.id} className="flex items-center gap-0.5">
-                <button
-                  onClick={() => setSelectedCategoryId(category.id)}
-                  className={`rounded-full px-3 py-1 text-xs ${
-                    selectedCategoryId === category.id
-                      ? 'bg-brand-200 text-neutral-800'
-                      : 'border border-brand-100 text-brand-600'
-                  }`}
-                >
-                  {category.name}
-                </button>
-                <button
-                  onClick={() => openEditCategory(category)}
-                  className="rounded-full p-1 text-xs text-brand-300 hover:text-brand-600"
-                  title="Modifica categoria"
-                  aria-label={`Modifica ${category.name}`}
-                >
-                  ✎
-                </button>
-              </div>
-            ))}
+            {(() => {
+              const isPersonalSelected = pages.find((p) => p.id === selectedPageId)?.type === 'personal'
+              return (
+                <>
+                  <button
+                    onClick={() => setSelectedCategoryId(ALL)}
+                    className={`rounded-full px-3 py-1 text-xs ${
+                      selectedCategoryId === ALL
+                        ? isPersonalSelected
+                          ? 'bg-personal-200 text-neutral-800'
+                          : 'bg-brand-200 text-neutral-800'
+                        : isPersonalSelected
+                          ? 'border border-personal-100 text-personal-600'
+                          : 'border border-brand-100 text-brand-600'
+                    }`}
+                  >
+                    Tutte le categorie
+                  </button>
+                  {categories.map((category) => (
+                    <div key={category.id} className="flex items-center gap-0.5">
+                      <button
+                        onClick={() => setSelectedCategoryId(category.id)}
+                        className={`rounded-full px-3 py-1 text-xs ${
+                          selectedCategoryId === category.id
+                            ? isPersonalSelected
+                              ? 'bg-personal-200 text-neutral-800'
+                              : 'bg-brand-200 text-neutral-800'
+                            : isPersonalSelected
+                              ? 'border border-personal-100 text-personal-600'
+                              : 'border border-brand-100 text-brand-600'
+                        }`}
+                      >
+                        {category.name}
+                      </button>
+                      <button
+                        onClick={() => openEditCategory(category)}
+                        className={`rounded-full p-1 text-xs ${
+                          isPersonalSelected
+                            ? 'text-personal-300 hover:text-personal-600'
+                            : 'text-brand-300 hover:text-brand-600'
+                        }`}
+                        title="Modifica categoria"
+                        aria-label={`Modifica ${category.name}`}
+                      >
+                        ✎
+                      </button>
+                    </div>
+                  ))}
+                </>
+              )
+            })()}
             {showCategoryForm ? (
               <CategoryForm
                 pageId={selectedPageId}
