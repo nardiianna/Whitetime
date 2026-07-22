@@ -244,6 +244,8 @@ function App() {
     setShowForm(true)
   }
 
+  const isPersonalSelected = pages.find((p) => p.id === selectedPageId)?.type === 'personal'
+
   return (
     <div className="min-h-screen bg-brand-50">
       <div className="mx-auto max-w-3xl px-4 py-6">
@@ -330,57 +332,50 @@ function App() {
 
         {selectedPageId !== ALL && (
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            {(() => {
-              const isPersonalSelected = pages.find((p) => p.id === selectedPageId)?.type === 'personal'
-              return (
-                <>
-                  <button
-                    onClick={() => setSelectedCategoryId(ALL)}
-                    className={`rounded-full px-3 py-1 text-xs ${
-                      selectedCategoryId === ALL
-                        ? isPersonalSelected
-                          ? 'bg-personal-200 text-neutral-800'
-                          : 'bg-brand-200 text-neutral-800'
-                        : isPersonalSelected
-                          ? 'border border-personal-100 text-personal-600'
-                          : 'border border-brand-100 text-brand-600'
-                    }`}
-                  >
-                    Tutte le categorie
-                  </button>
-                  {categories.map((category) => (
-                    <div key={category.id} className="flex items-center gap-0.5">
-                      <button
-                        onClick={() => setSelectedCategoryId(category.id)}
-                        className={`rounded-full px-3 py-1 text-xs ${
-                          selectedCategoryId === category.id
-                            ? isPersonalSelected
-                              ? 'bg-personal-200 text-neutral-800'
-                              : 'bg-brand-200 text-neutral-800'
-                            : isPersonalSelected
-                              ? 'border border-personal-100 text-personal-600'
-                              : 'border border-brand-100 text-brand-600'
-                        }`}
-                      >
-                        {category.name}
-                      </button>
-                      <button
-                        onClick={() => openEditCategory(category)}
-                        className={`rounded-full p-1 text-xs ${
-                          isPersonalSelected
-                            ? 'text-personal-300 hover:text-personal-600'
-                            : 'text-brand-300 hover:text-brand-600'
-                        }`}
-                        title="Modifica categoria"
-                        aria-label={`Modifica ${category.name}`}
-                      >
-                        ✎
-                      </button>
-                    </div>
-                  ))}
-                </>
-              )
-            })()}
+            <button
+              onClick={() => setSelectedCategoryId(ALL)}
+              className={`rounded-full px-3 py-1 text-xs ${
+                selectedCategoryId === ALL
+                  ? isPersonalSelected
+                    ? 'bg-personal-200 text-neutral-800'
+                    : 'bg-brand-200 text-neutral-800'
+                  : isPersonalSelected
+                    ? 'border border-personal-100 text-personal-600'
+                    : 'border border-brand-100 text-brand-600'
+              }`}
+            >
+              Tutte le categorie
+            </button>
+            {categories.map((category) => (
+              <div key={category.id} className="flex items-center gap-0.5">
+                <button
+                  onClick={() => setSelectedCategoryId(category.id)}
+                  className={`rounded-full px-3 py-1 text-xs ${
+                    selectedCategoryId === category.id
+                      ? isPersonalSelected
+                        ? 'bg-personal-200 text-neutral-800'
+                        : 'bg-brand-200 text-neutral-800'
+                      : isPersonalSelected
+                        ? 'border border-personal-100 text-personal-600'
+                        : 'border border-brand-100 text-brand-600'
+                  }`}
+                >
+                  {category.name}
+                </button>
+                <button
+                  onClick={() => openEditCategory(category)}
+                  className={`rounded-full p-1 text-xs ${
+                    isPersonalSelected
+                      ? 'text-personal-300 hover:text-personal-600'
+                      : 'text-brand-300 hover:text-brand-600'
+                  }`}
+                  title="Modifica categoria"
+                  aria-label={`Modifica ${category.name}`}
+                >
+                  ✎
+                </button>
+              </div>
+            ))}
             {showCategoryForm ? (
               <CategoryForm
                 pageId={selectedPageId}
@@ -431,7 +426,7 @@ function App() {
             onClick={() => openNewPost()}
             className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400"
           >
-            + Nuovo post
+            {isPersonalSelected ? '+ Nuovo evento' : '+ Nuovo post'}
           </button>
         </div>
 
